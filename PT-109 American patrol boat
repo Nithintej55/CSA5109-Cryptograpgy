@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+void findCharPosition(char matrix[5][5], char ch, int *row, int *col) {
+    if (ch == 'J') ch = 'I';
+    int i;
+    int j;
+
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (matrix[i][j] == ch) {
+                *row = i;
+                *col = j;
+                return;
+            }
+        }
+    }
+}
+
+char decryptChar(char first, char second, char matrix[5][5]) {
+    int row1, col1, row2, col2;
+
+    findCharPosition(matrix, first, &row1, &col1);
+    findCharPosition(matrix, second, &row2, &col2);
+
+    if (row1 == row2) {
+        col1 = (col1 - 1 + 5) % 5;
+        col2 = (col2 - 1 + 5) % 5;
+    } else if (col1 == col2) {
+        row1 = (row1 - 1 + 5) % 5;
+        row2 = (row2 - 1 + 5) % 5;
+    } else {
+        int temp = col1;
+        col1 = col2;
+        col2 = temp;
+    }
+
+    return matrix[row1][col1];
+}
+
+int main() {
+    char codeMessage[] = "KXJEY UREBE ZWEHE WRYTU HEYFS KREHE GOYFI WTTTU OLKSY CAJPO BOTEI ZONTX BYBNT GONEY CUZWR GDSON SXBOU YWRHE BAAHY USEDQ";
+    char matrix[5][5] = {
+        {'K', 'X', 'J', 'E', 'Y'},
+        {'U', 'R', 'E', 'B', 'Z'},
+        {'W', 'H', 'F', 'S', 'T'},
+        {'G', 'O', 'Y', 'I', 'L'},
+        {'C', 'A', 'P', 'D', 'Q'}
+    };
+
+    int len = strlen(codeMessage);
+    char decodedMessage[1000];
+    int decodedLength = 0;
+    int i;
+
+    for (i = 0; i < len; i += 2) {
+        char first = codeMessage[i];
+        char second = codeMessage[i + 1];
+
+        if (first == ' ' || second == ' ') {
+            decodedMessage[decodedLength++] = ' ';
+        } else {
+            decodedMessage[decodedLength++] = decryptChar(first, second, matrix);
+        }
+    }
+
+    decodedMessage[decodedLength] = '\0';
+
+    printf("Decoded message: %s\n", decodedMessage);
+
+    return 0;
+}
