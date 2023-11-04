@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+float calculate_likelihood(char text[]) {
+    int counts[26] = {0};
+    int text_length = strlen(text);
+    int total_letters = 0;
+    float english_frequencies[] = {
+        0.0817, 0.0149, 0.0278, 0.0425, 0.127, 0.0223, 0.0202, 0.0609, 0.0697, 0.0015, 0.0077, 0.0402,
+        0.0241, 0.0675, 0.0751, 0.0193, 0.0009, 0.0599, 0.0633, 0.0906, 0.0276, 0.0098, 0.0236, 0.0015,
+        0.0197, 0.0007
+    };
+
+    for (int i = 0; i < text_length; i++) {
+        if (isalpha(text[i])) {
+            char letter = tolower(text[i]);
+            counts[letter - 'a']++;
+            total_letters++;
+        }
+    }
+
+    float likelihood = 0;
+    for (int i = 0; i < 26; i++) {
+        likelihood += (float)counts[i] / total_letters * english_frequencies[i];
+    }
+
+    return likelihood;
+}
+
+void decrypt_caesar_cipher(char text[], int key) {
+    int text_length = strlen(text);
+    for (int i = 0; i < text_length; i++) {
+        if (isalpha(text[i])) {
+            char base = islower(text[i]) ? 'a' : 'A';
+            text[i] = (char)(((text[i] - base - key + 26) % 26) + base);
+        }
+    }
+}
+
+int main() {
+    char ciphertext[] = "LCLLEWLJAZLFKRVWAVNHCYAFYRVGJRYAFYRMERGMSUIFVJRCFALJKVBHVGIFHRIVJREUFWAVNRQWRICMJPMERWFLJGRIV";
+
+    int num_top_plaintexts = 10; 
+
+    printf("Top %d possible plaintexts by likelihood:\n", num_top_plaintexts);
+
+    for (int key = 1; key < 26; key++) {
+        char plaintext[1000];
+        strcpy(plaintext, ciphertext);
+        decrypt_caesar_cipher(plaintext, key);
+
+        float likelihood = calculate_likelihood(plaintext);
+        printf("Key %d: %s (Likelihood: %f)\n", key, plaintext, likelihood);
+    }
+
+    return 0;
+}
